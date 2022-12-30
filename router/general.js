@@ -5,6 +5,7 @@ let users = require('./auth_users.js').users
 const public_users = express.Router()
 const jwt = require('jsonwebtoken')
 const session = require('express-session')
+const axios = require('axios')
 
 public_users.use(
 	session({secret: 'fingerpint'}, (resave = true), (saveUninitialized = true))
@@ -28,12 +29,30 @@ public_users.post('/register', (req, res) => {
 })
 
 // Get the book list available in the shop
-public_users.get('/', function (req, res) {
-	res.send(books)
+
+public_users.get('/', async (req, res, next) => {
+	res.status(200).json(books)
 })
 
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+const getAllBooks = async () => {
+	try {
+		const response = await axios.get('http://localhost:5000')
+		console.log(
+			'🚀 ~ file: general.js:41 ~ getAllBooks ~ response',
+			response.data
+		)
+	} catch (error) {
+		console.log(error)
+	}
+}
+//////////////////////////////////////////////////////////
+getAllBooks()
+//////////////////////////////////////////////////////////
+
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn', function (req, res) {
+public_users.get('/isbn/:isbn', async (req, res) => {
 	const isbn = req.params.isbn
 
 	res.send(books[isbn])
