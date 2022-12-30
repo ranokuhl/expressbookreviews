@@ -114,6 +114,22 @@ public_users.get('/title/:title', function (req, res) {
 	res.send(newTitleArray)
 })
 
+//////////////////////////////////////////////////////////
+// ASYNC BOOK DETAILS BASED ON TITLE
+//////////////////////////////////////////////////////////
+const getBooksDetailsByTitle = async title => {
+	try {
+		const response = await axios.get(`http://localhost:5000/title/${title}`)
+		console.log(response.data)
+	} catch (error) {
+		console.log(error)
+	}
+}
+//////////////////////////////////////////////////////////
+getBooksDetailsByTitle('The Divine Comedy')
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+
 //  Get book review
 public_users.get('/review/:isbn', function (req, res) {
 	const reviewISBN = req.params.isbn
