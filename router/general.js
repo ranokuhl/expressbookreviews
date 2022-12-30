@@ -83,6 +83,24 @@ public_users.get('/author/:author', function (req, res) {
 	res.send(newBookArray)
 })
 
+//////////////////////////////////////////////////////////
+// ASYNC BOOK DETAILS BASED ON AUTHOR
+//////////////////////////////////////////////////////////
+const getBooksDetailsByAuthor = async author => {
+	try {
+		const response = await axios.get(
+			`http://localhost:5000/author/${author}`
+		)
+		console.log(response.data)
+	} catch (error) {
+		console.log(error)
+	}
+}
+//////////////////////////////////////////////////////////
+getBooksDetailsByAuthor('Dante Alighieri')
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+
 // Get all books based on title
 public_users.get('/title/:title', function (req, res) {
 	const title = req.params.title
