@@ -17,6 +17,10 @@ let users = [
 		username: 'user3',
 		password: 'user3',
 	},
+	{
+		username: 'ranoa',
+		password: 'bakfiets',
+	},
 ]
 
 const isValid = username => {
