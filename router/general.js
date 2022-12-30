@@ -3,24 +3,19 @@ let books = require('./booksdb.js')
 let isValid = require('./auth_users.js').isValid
 let users = require('./auth_users.js').users
 const public_users = express.Router()
+const jwt = require('jsonwebtoken')
+const session = require('express-session')
 
-const doesExist = username => {
-	let userswithsamename = users.filter(user => {
-		return user.username === username
-	})
-	if (userswithsamename.length > 0) {
-		return true
-	} else {
-		return false
-	}
-}
+public_users.use(
+	session({secret: 'fingerpint'}, (resave = true), (saveUninitialized = true))
+)
 
 public_users.post('/register', (req, res) => {
 	const username = req.body.username
 	const password = req.body.password
 
 	if (username && password) {
-		if (!doesExist(username)) {
+		if (!isValid(username)) {
 			users.push({username: username, password: password})
 			return res.status(200).json({
 				message: 'User successfully registered. Now you can login',
@@ -80,5 +75,48 @@ public_users.get('/review/:isbn', function (req, res) {
 		}
 	})
 })
+
+///////////////////////////////////////////////////////////////////////////////
+
+const authenticatedUser = (username, password) => {
+	//returns boolean
+	const matchingUsers = users.filter(
+		user => user.username === username && user.password === password
+	)
+	return matchingUsers.length > 0
+}
+
+///////////////////////////////////////////////////////////////////////////////
+public_users.post('/login', (req, res) => {
+	const username = req.body.username
+	const password = req.body.password
+
+	if (!username || !password) {
+		return res.status(404).json({message: 'Error logging in'})
+	}
+
+	if (authenticatedUser(username, password)) {
+		let accessToken = jwt.sign(
+			{
+				data: password,
+			},
+			'access',
+			{expiresIn: 60 * 60}
+		)
+
+		req.session.authorization = {
+			accessToken,
+			username,
+		}
+		return res.status(200).send('User successfully logged in')
+	} else {
+		return res
+			.status(208)
+			.json({message: 'Invalid Login. Check username and password'})
+	}
+})
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 module.exports.general = public_users
