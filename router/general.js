@@ -28,106 +28,122 @@ public_users.post('/register', (req, res) => {
 	return res.status(404).json({message: 'Unable to register user.'})
 })
 
-// Get the book list available in the shop
-
-public_users.get('/', async (req, res, next) => {
-	res.status(200).json(books)
-})
-
 //////////////////////////////////////////////////////////
 // ASYNC ALL GET ALL BOOKS
 //////////////////////////////////////////////////////////
+
 const getAllBooks = async () => {
 	try {
-		const response = await axios.get('http://localhost:5000')
+		const allBooksPromise = await Promise.resolve(books)
+		if (allBooksPromise) {
+			return allBooksPromise
+		} else {
+			return Promise.reject(new Error('No books found.'))
+		}
+	} catch (err) {
+		console.log(err)
+	}
+}
+//////////////////////////////////////////////////////////
+
+// Get the book list available in the shop
+
+public_users.get('/', async function (req, res) {
+	const data = await getAllBooks()
+	res.json(data)
+})
+//////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////
+// ASYNC GET BOOK DETAILS BY ISBN
+//////////////////////////////////////////////////////////
+
+const getBooksDetailsByISBN = async isbn => {
+	try {
+		const ISBNPromise = await Promise.resolve(isbn)
+		if (ISBNPromise) {
+			return Promise.resolve(isbn)
+		} else {
+			return Promise.reject(new Error('Could not retrieve ISBN Promise.'))
+		}
 	} catch (error) {
 		console.log(error)
 	}
 }
-//////////////////////////////////////////////////////////
-getAllBooks()
 //////////////////////////////////////////////////////////
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn', async (req, res) => {
 	const isbn = req.params.isbn
-
-	res.send(books[isbn])
+	const data = await getBooksDetailsByISBN(isbn)
+	res.send(books[data])
 })
-
 //////////////////////////////////////////////////////////
-// ASYNC GET BOOK DETAILS
-//////////////////////////////////////////////////////////
-const getBooksDetailsByISBN = async isbn => {
-	try {
-		const response = await axios.get(`http://localhost:5000/isbn/${isbn}`)
-		console.log(response.data)
-	} catch (error) {
-		console.log(error)
-	}
-}
-//////////////////////////////////////////////////////////
-getBooksDetailsByISBN(1)
-//////////////////////////////////////////////////////////
-
-// Get book details based on author
-public_users.get('/author/:author', function (req, res) {
-	const author = req.params.author
-
-	const newBookArray = []
-	Object.values(books).map(book => {
-		if (book.author === author) {
-			newBookArray.push(book)
-		}
-	})
-	res.send(newBookArray)
-})
 
 //////////////////////////////////////////////////////////
 // ASYNC BOOK DETAILS BASED ON AUTHOR
 //////////////////////////////////////////////////////////
-const getBooksDetailsByAuthor = async author => {
+
+const findAuthor = async author => {
 	try {
-		const response = await axios.get(
-			`http://localhost:5000/author/${author}`
-		)
-		console.log(response.data)
+		if (author) {
+			const newAuthorArray = []
+			Object.values(books).map(book => {
+				if (book.author === author) {
+					newAuthorArray.push(book)
+				}
+			})
+			return Promise.resolve(newAuthorArray)
+		} else {
+			return Promise.reject(
+				new Error('Could not retrieve Author Promise.')
+			)
+		}
 	} catch (error) {
 		console.log(error)
 	}
 }
 //////////////////////////////////////////////////////////
-getBooksDetailsByAuthor('Dante Alighieri')
-//////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
 
-// Get all books based on title
-public_users.get('/title/:title', function (req, res) {
-	const title = req.params.title
-
-	const newTitleArray = []
-	Object.values(books).map(book => {
-		if (book.title === title) {
-			newTitleArray.push(book)
-		}
-	})
-	res.send(newTitleArray)
+// Get book details based on author
+public_users.get('/author/:author', async (req, res) => {
+	const author = req.params.author
+	const data = await findAuthor(author)
+	res.send(data)
 })
+//////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////
 // ASYNC BOOK DETAILS BASED ON TITLE
 //////////////////////////////////////////////////////////
-const getBooksDetailsByTitle = async title => {
+
+const findTitle = async title => {
 	try {
-		const response = await axios.get(`http://localhost:5000/title/${title}`)
-		console.log(response.data)
+		if (title) {
+			const newTitleArray = []
+			Object.values(books).map(book => {
+				if (book.title === title) {
+					newTitleArray.push(book)
+				}
+			})
+			return Promise.resolve(newTitleArray)
+		} else {
+			return Promise.reject(
+				new Error('Could not retrieve Author Promise.')
+			)
+		}
 	} catch (error) {
 		console.log(error)
 	}
 }
 //////////////////////////////////////////////////////////
-getBooksDetailsByTitle('The Divine Comedy')
-//////////////////////////////////////////////////////////
+
+// Get all books based on title
+public_users.get('/title/:title', async (req, res) => {
+	const title = req.params.title
+	const data = await findTitle(title)
+	res.send(data)
+})
 //////////////////////////////////////////////////////////
 
 //  Get book review
