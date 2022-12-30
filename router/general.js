@@ -35,14 +35,11 @@ public_users.get('/', async (req, res, next) => {
 })
 
 //////////////////////////////////////////////////////////
+// ASYNC ALL GET ALL BOOKS
 //////////////////////////////////////////////////////////
 const getAllBooks = async () => {
 	try {
 		const response = await axios.get('http://localhost:5000')
-		console.log(
-			'🚀 ~ file: general.js:41 ~ getAllBooks ~ response',
-			response.data
-		)
 	} catch (error) {
 		console.log(error)
 	}
@@ -57,6 +54,21 @@ public_users.get('/isbn/:isbn', async (req, res) => {
 
 	res.send(books[isbn])
 })
+
+//////////////////////////////////////////////////////////
+// ASYNC GET BOOK DETAILS
+//////////////////////////////////////////////////////////
+const getBooksDetailsByISBN = async isbn => {
+	try {
+		const response = await axios.get(`http://localhost:5000/isbn/${isbn}`)
+		console.log(response.data)
+	} catch (error) {
+		console.log(error)
+	}
+}
+//////////////////////////////////////////////////////////
+getBooksDetailsByISBN(1)
+//////////////////////////////////////////////////////////
 
 // Get book details based on author
 public_users.get('/author/:author', function (req, res) {
